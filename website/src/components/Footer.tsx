@@ -14,9 +14,9 @@ export const Footer = ({ pricesLastUpdated }: { pricesLastUpdated?: Date }) => {
   return (
     <footer className="mb-24">
       <p>
-        Each item's expected value is calculated based on its drop chance
-        multiplied by its profit. The sum of all profitable items' expected
-        values creates a loot chest's average expected value per run.
+        Each item&apos;s expected value is calculated based on its drop chance
+        multiplied by its profit. The sum of all profitable items&apos; expected
+        values creates a loot chest&apos;s average expected value per run.
       </p>
       <p>
         Expected value after rerolling is calculated by subtracting the value of
@@ -39,7 +39,7 @@ export const Footer = ({ pricesLastUpdated }: { pricesLastUpdated?: Date }) => {
         ) : null}{" "}
         Data sourced from{" "}
         <Link href="https://github.com/Tricked-dev/lowestbins">
-          Tricked's <code>lowestbins</code>
+          Tricked&apos;s <code>lowestbins</code>
         </Link>
         .
       </p>

@@ -8,7 +8,7 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      typography: (theme) => ({
+      typography: () => ({
         DEFAULT: {
           css: {
             // Remove "`" before and after inline code elements and blockquotes

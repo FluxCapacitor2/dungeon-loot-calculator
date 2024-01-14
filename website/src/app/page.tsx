@@ -210,7 +210,11 @@ export default function Home() {
         </>
       )}
       <h2 className="mt-12 mb-0">Notes</h2>
-      <Footer pricesLastUpdated={new Date(priceData?.lastModified)} />
+      <Footer
+        pricesLastUpdated={
+          priceData?.lastModified ? new Date(priceData.lastModified) : undefined
+        }
+      />
     </main>
   );
 }
