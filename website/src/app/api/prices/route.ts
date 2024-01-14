@@ -1,20 +1,23 @@
-import { items } from "@/app/constants/items";
+import { items } from "@/constants/items";
 
 export const revalidate = 3600; // Every hour
 
 export const GET = async () => {
-  const data = (await fetch("https://lb.tricked.pro/lowestbins", {
+  const pricesResponse = await fetch("https://lb.tricked.pro/lowestbins", {
     next: {
-      revalidate: 86400,
+      revalidate: 120,
     },
-  }).then((response) => response.json())) as Record<string, number>;
+  });
 
-  const response: Record<string, number> = {};
+  const data = (await pricesResponse.json()) as Record<string, number>;
+  const lastModified = pricesResponse.headers.get("last-modified");
+
+  const pricesSubset: Record<string, number> = {};
   for (const item of Object.values(items)) {
-    response[item] = data[item];
+    pricesSubset[item] = data[item];
   }
 
-  return new Response(JSON.stringify(response), {
+  return new Response(JSON.stringify({ lastModified, prices: pricesSubset }), {
     headers: { "Content-Type": "application/json" },
   });
 };

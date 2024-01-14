@@ -1,35 +1,44 @@
 "use client";
 
+import { Footer } from "@/components/Footer";
 import { useState } from "react";
 import useSWR from "swr";
+import { FormattedNumber } from "../components/FormattedNumber";
+import { items } from "../constants/items";
 import { LootAPIResponse } from "./api/data/[floor]/route";
-import { items } from "./constants/items";
 
 const fetcher = (...args: Parameters<typeof fetch>) =>
   fetch(...args).then((res) => res.json());
 
+const dateFormat = new Intl.RelativeTimeFormat(undefined);
+
 export default function Home() {
-  const [floor, setFloor] = useState("F1");
-  const [chest, setChest] = useState("Obsidian Chest");
-  const [talisman, setTalisman] = useState("Talisman");
+  const [floor, setFloor] = useState("F7");
+  const [chest, setChest] = useState("Bedrock Chest");
+  const [talisman, setTalisman] = useState("Artifact");
   const [luck, setLuck] = useState("10");
+
+  // Reset the "Chest" dropdown if it's set to Bedrock and a floor under 5 is chosen
+  if (parseInt(floor.charAt(1)) < 5 && chest === "Bedrock Chest") {
+    setChest("Obsidian Chest");
+  }
 
   const url = `/api/data/${floor}?chest=${encodeURIComponent(
     chest
   )}&talisman=${talisman}&luck=${luck}`;
 
   const { data: chances } = useSWR<LootAPIResponse>(url, fetcher);
-  const { data: prices } = useSWR<Record<string, number>>(
-    "/api/prices",
-    fetcher
-  );
+  const { data: priceData } = useSWR<{
+    prices: Record<string, number>;
+    lastModified: string;
+  }>("/api/prices", fetcher);
 
   const calculateEV = (sPlus = false) => {
     let ev = 0;
     if (chances !== undefined) {
       for (const row of chances) {
         const itemId = items[row.item];
-        const price = prices?.[itemId];
+        const price = priceData?.prices?.[itemId];
         const chance = sPlus ? row.sPlus : row.base;
         if (price === undefined) continue;
         const profit = price - parseInt(row.cost.replaceAll(/,/g, ""));
@@ -41,7 +50,7 @@ export default function Home() {
   };
 
   const [sPlus, setSPlus] = useState(true);
-  const kismetPrice = prices?.["KISMET_FEATHER"];
+  const kismetPrice = priceData?.prices?.["KISMET_FEATHER"];
   const evAfterReroll = calculateEV(sPlus) - (kismetPrice ?? 0);
 
   return (
@@ -52,7 +61,7 @@ export default function Home() {
         <label className="flex flex-col gap-2">
           <span className="font-medium">Floor</span>
           <select
-            className="p-2 rounded-md"
+            className="p-2 rounded-md dark:bg-gray-900"
             value={floor}
             onChange={(e) => setFloor(e.currentTarget.value)}
           >
@@ -75,7 +84,7 @@ export default function Home() {
         <label className="flex flex-col gap-2">
           <span className="font-medium">Chest</span>
           <select
-            className="p-2 rounded-md"
+            className="p-2 rounded-md dark:bg-gray-900"
             value={chest}
             onChange={(e) => setChest(e.currentTarget.value)}
           >
@@ -95,7 +104,7 @@ export default function Home() {
         <label className="flex flex-col gap-2">
           <span className="font-medium">Treasure Talisman</span>
           <select
-            className="p-2 rounded-md"
+            className="p-2 rounded-md dark:bg-gray-900"
             value={talisman}
             onChange={(e) => setTalisman(e.currentTarget.value)}
           >
@@ -108,7 +117,7 @@ export default function Home() {
         <label className="flex flex-col gap-2">
           <span className="font-medium">Boss Luck</span>
           <select
-            className="p-2 rounded-md"
+            className="p-2 rounded-md dark:bg-gray-900"
             value={luck}
             onChange={(e) => setLuck(e.currentTarget.value)}
           >
@@ -132,11 +141,23 @@ export default function Home() {
             <span className="ml-2">S+ run?</span>
           </label>
           <ul>
-            <li>Expected value per run: {Math.round(calculateEV(sPlus))}</li>
-            <li>Kismet Price: {kismetPrice ?? "Loading..."}</li>
+            <li>
+              Expected value per run:{" "}
+              <FormattedNumber>{calculateEV(sPlus)}</FormattedNumber>
+            </li>
+            <li>
+              Kismet Price:{" "}
+              <FormattedNumber noColor>
+                {kismetPrice ?? "Loading..."}
+              </FormattedNumber>
+            </li>
             <li>
               Expected value after rerolling:{" "}
-              {kismetPrice ? Math.round(evAfterReroll) : "Loading..."}
+              {kismetPrice ? (
+                <FormattedNumber>{evAfterReroll}</FormattedNumber>
+              ) : (
+                "Loading..."
+              )}
             </li>
             <li>
               {evAfterReroll > 0
@@ -160,7 +181,7 @@ export default function Home() {
             <tbody>
               {chances.map((row) => {
                 const itemId = items[row.item];
-                const price = prices?.[itemId];
+                const price = priceData?.prices?.[itemId];
                 const profit =
                   (price ?? 0) - parseInt(row.cost.replaceAll(/,/g, ""));
                 const ev = (profit * parseFloat(row.sPlus)) / 100;
@@ -170,9 +191,17 @@ export default function Home() {
                     <td>{row.cost}</td>
                     <td>{row.base}</td>
                     <td>{row.sPlus}</td>
-                    <td>{price ?? "-"}</td>
-                    <td>{profit}</td>
-                    <td>{price ? Math.round(ev) : "-"}</td>
+                    <td>
+                      <FormattedNumber noColor>{price ?? "-"}</FormattedNumber>
+                    </td>
+                    <td>
+                      <FormattedNumber>{profit}</FormattedNumber>
+                    </td>
+                    <td>
+                      <FormattedNumber>
+                        {price ? Math.round(ev) : "-"}
+                      </FormattedNumber>
+                    </td>
                   </tr>
                 );
               })}
@@ -180,6 +209,8 @@ export default function Home() {
           </table>
         </>
       )}
+      <h2 className="mt-12 mb-0">Notes</h2>
+      <Footer pricesLastUpdated={new Date(priceData?.lastModified)} />
     </main>
   );
 }

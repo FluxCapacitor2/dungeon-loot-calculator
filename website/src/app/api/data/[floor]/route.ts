@@ -1,4 +1,4 @@
-import { FloorLootTable } from "@/app/types/LootTable";
+import { FloorLootTable } from "@/types/LootTable";
 import data from "../../../../../public/data.json";
 
 export type LootAPIResponse = {
