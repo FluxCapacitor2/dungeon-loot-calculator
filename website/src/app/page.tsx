@@ -30,6 +30,7 @@ export default function Home() {
       for (const row of chances) {
         const itemId = items[row.item];
         const price = prices?.[itemId];
+        if (price === undefined) continue;
         const profit = price - parseInt(row.cost.replaceAll(/,/g, ""));
         ev += (profit * parseFloat(row.sPlus)) / 100;
       }
@@ -126,7 +127,8 @@ export default function Home() {
               {chances.map((row) => {
                 const itemId = items[row.item];
                 const price = prices?.[itemId];
-                const profit = price - parseInt(row.cost.replaceAll(/,/g, ""));
+                const profit =
+                  (price ?? 0) - parseInt(row.cost.replaceAll(/,/g, ""));
                 const ev = (profit * parseFloat(row.sPlus)) / 100;
                 return (
                   <tr key={row.item}>
