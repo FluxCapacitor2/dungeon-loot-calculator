@@ -53,6 +53,7 @@ export default function Home() {
           <span className="font-medium">Floor</span>
           <select
             className="p-2 rounded-md"
+            value={floor}
             onChange={(e) => setFloor(e.currentTarget.value)}
           >
             <option value="F1">F1</option>
@@ -75,6 +76,7 @@ export default function Home() {
           <span className="font-medium">Chest</span>
           <select
             className="p-2 rounded-md"
+            value={chest}
             onChange={(e) => setChest(e.currentTarget.value)}
           >
             <option value="Wood Chest">Wood</option>
@@ -94,6 +96,7 @@ export default function Home() {
           <span className="font-medium">Treasure Talisman</span>
           <select
             className="p-2 rounded-md"
+            value={talisman}
             onChange={(e) => setTalisman(e.currentTarget.value)}
           >
             <option value="None">None</option>
@@ -106,6 +109,7 @@ export default function Home() {
           <span className="font-medium">Boss Luck</span>
           <select
             className="p-2 rounded-md"
+            value={luck}
             onChange={(e) => setLuck(e.currentTarget.value)}
           >
             <option value="0">0</option>
