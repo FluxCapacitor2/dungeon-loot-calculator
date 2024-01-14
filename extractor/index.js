@@ -51,14 +51,7 @@ function parseDropRates(elements) {
   });
 }
 
-async function delay(duration) {
-  await new Promise((resolve) => {
-    setTimeout(resolve, duration);
-  });
-}
-
 for (const floor of Object.keys(wikiPages)) {
-  await delay(1000);
   const page = wikiPages[floor];
   console.log("Parsing", page, "...");
   const content = await fetch(page).then((response) => response.text());
@@ -98,4 +91,4 @@ for (const floor of Object.keys(wikiPages)) {
 // Write data to a file
 const generatedData = JSON.stringify(floors);
 console.log(generatedData);
-await writeFile("data.json", generatedData);
+await writeFile("../website/public/data.json", generatedData);
