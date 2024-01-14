@@ -24,22 +24,30 @@ export default function Home() {
     fetcher
   );
 
-  const calculateEV = () => {
+  const calculateEV = (sPlus = false) => {
     let ev = 0;
     if (chances !== undefined) {
       for (const row of chances) {
         const itemId = items[row.item];
         const price = prices?.[itemId];
+        const chance = sPlus ? row.sPlus : row.base;
         if (price === undefined) continue;
         const profit = price - parseInt(row.cost.replaceAll(/,/g, ""));
-        ev += (profit * parseFloat(row.sPlus)) / 100;
+        if (profit < 0) continue;
+        ev += (profit * parseFloat(chance)) / 100;
       }
     }
     return ev;
   };
 
+  const [sPlus, setSPlus] = useState(true);
+  const kismetPrice = prices?.["KISMET_FEATHER"];
+  const evAfterReroll = calculateEV(sPlus) - (kismetPrice ?? 0);
+
   return (
-    <main className="flex flex-col gap-4 prose dark:prose-invert mx-auto">
+    <main className="flex flex-col prose dark:prose-invert mx-auto">
+      <h1 className="mt-24">SkyBlock Dungeon Loot Calculator</h1>
+      <h2 className="mt-0">Inputs</h2>
       <form className="flex md:flex-row gap-4">
         <label className="flex flex-col gap-2">
           <span className="font-medium">Floor</span>
@@ -110,7 +118,29 @@ export default function Home() {
       </form>
       {!!chances && (
         <>
-          {/* <p>Expected value per run (S+): {calculateEV()}</p> */}
+          <h2>Stats</h2>
+          <label>
+            <input
+              type="checkbox"
+              onChange={(e) => setSPlus(e.currentTarget.checked)}
+              checked={sPlus}
+            />
+            <span className="ml-2">S+ run?</span>
+          </label>
+          <ul>
+            <li>Expected value per run: {Math.round(calculateEV(sPlus))}</li>
+            <li>Kismet Price: {kismetPrice ?? "Loading..."}</li>
+            <li>
+              Expected value after rerolling:{" "}
+              {kismetPrice ? Math.round(evAfterReroll) : "Loading..."}
+            </li>
+            <li>
+              {evAfterReroll > 0
+                ? "🎉 Rerolling is likely profitable!"
+                : "😔 Rerolling is unlikely profitable :("}
+            </li>
+          </ul>
+          <h2>Items</h2>
           <table>
             <thead>
               <tr>

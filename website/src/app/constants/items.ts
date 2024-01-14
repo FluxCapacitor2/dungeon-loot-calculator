@@ -113,4 +113,5 @@ export const items: Record<string, string> = {
   "Warped Stone": "AOTE_STONE",
   "Shadow Assassin Helmet": "SHADOW_ASSASSIN_HELMET",
   "Shadow Assassin Boots": "SHADOW_ASSASSIN_BOOTS",
+  "Kismet Feather": "KISMET_FEATHER",
 };
